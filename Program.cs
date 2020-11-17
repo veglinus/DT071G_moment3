@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Collections.Generic;
 
 namespace moment3
 {
@@ -21,41 +22,35 @@ namespace moment3
             read();
 
             void read() {
-            
+            Console.Clear();
             Console.Write($"\nLINUS' GUESTBOOK");
             Console.Write($"\n 1. Add new post");
             Console.Write($"\n 2. Delete post");
             Console.Write($"\n X. Exit");
 
-            string loadfile;
-            loadfile = File.ReadAllText("data.json");
-            var serialized = JsonSerializer.Deserialize<Post>(loadfile);
-            Console.WriteLine($"\n\n[{serialized.ID}] - {serialized.Data}\n");
+            Console.WriteLine("\n");
 
-    /*
-            using (JsonDocument document = JsonDocument.Parse(File.ReadAllText("data.json")))
+            try
             {
-                JsonElement root = document.RootElement;
-                JsonElement PostElement = root.GetProperty("Post");
-                foreach (JsonElement post in PostElement.EnumerateArray())
-                {
-                    //Console.WriteLine($"\n\n[{post.ID}] - {post.Data}\n");
-                    Console.WriteLine($"\n{post}");
+                var loadfile = File.ReadAllText("data.json"); // Read file
+                var JSONdata = JsonSerializer.Deserialize<List<Post>>(loadfile) ?? null; // Deserialize into list of posts
+                //Console.WriteLine($"\n\n{JSONdata}");
+
+                if (JSONdata != null) {
+                    foreach (var item in JSONdata) // For each post in list, write post ID and Data
+                    {
+                        Console.WriteLine($"[{item.ID}] {item.Author} - {item.Data}");
+                    }
                 }
             }
-*/
+            catch (System.Exception)
+            {
+                Console.WriteLine("No entries in guestbook.");
+            }
 
 
 
-
-
-
-
-            // read data from file
-            //Console.Write($"\n\n{serialized}\n\n");
-            var keypressed = Console.ReadKey(true).Key;
-
-
+            var keypressed = Console.ReadKey(true).Key; // Await keypress
             switch (keypressed)
             {
                 case ConsoleKey.X:
@@ -88,6 +83,7 @@ namespace moment3
             person.Time = DateTime.Now;
             person.ID = Guid.NewGuid();
 
+            /*
             Console.WriteLine("\nAdding post:");
             Console.WriteLine(
                 format: "[{0}], {1}, posted on {2:dd MMM yy}",
@@ -95,19 +91,25 @@ namespace moment3
                 arg1: person.Data,
                 arg2: person.Time
             );
-
-            /*
-            string loadfile;
-            loadfile = File.ReadAllText("data.json");
-            var serialized = JsonSerializer.Deserialize<Post>(loadfile);
             */
-            // https://stackoverflow.com/questions/20626849/how-to-append-a-json-file-without-disturbing-the-formatting
 
-            var jsonString = JsonSerializer.Serialize(person); // https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-how-to?pivots=dotnet-5-0
-            File.WriteAllText("data.json", jsonString);
+            List<Post> newlist = new List<Post> {}; // Initialize empty list of posts
 
+            try
+            {
+                var loadfile = File.ReadAllText("data.json"); // Read file
+                newlist = JsonSerializer.Deserialize<List<Post>>(loadfile); // Deserialize file into our empty list
+                newlist.Add(person); // Add our new post
+            }
+            catch (System.Exception)
+            {
+                newlist.Add(person); // If file is empty, simply add person to our empty list
+            }
+
+            var newData = JsonSerializer.Serialize(newlist); // Serialize our list into JSON
+            File.WriteAllText("data.json", newData); // Write the new list
             Console.WriteLine("\n\n\n");
-            //Console.Clear();
+
             read();
             }
 

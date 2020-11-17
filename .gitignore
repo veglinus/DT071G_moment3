@@ -1,3 +1,5 @@
 obj/
 bin/
 .vscode/
+backup.json
+data.json
