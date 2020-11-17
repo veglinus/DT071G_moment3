@@ -28,16 +28,31 @@ namespace moment3
             Console.Write($"\n X. Exit");
 
             string loadfile;
-            
             loadfile = File.ReadAllText("data.json");
             var serialized = JsonSerializer.Deserialize<Post>(loadfile);
-            
-            Console.WriteLine($"\n{serialized.Data}\n");
-            
-            //var serialized = "testdata";
+            Console.WriteLine($"\n\n[{serialized.ID}] - {serialized.Data}\n");
+
+    /*
+            using (JsonDocument document = JsonDocument.Parse(File.ReadAllText("data.json")))
+            {
+                JsonElement root = document.RootElement;
+                JsonElement PostElement = root.GetProperty("Post");
+                foreach (JsonElement post in PostElement.EnumerateArray())
+                {
+                    //Console.WriteLine($"\n\n[{post.ID}] - {post.Data}\n");
+                    Console.WriteLine($"\n{post}");
+                }
+            }
+*/
+
+
+
+
+
+
 
             // read data from file
-            Console.Write($"\n\n{serialized}\n\n");
+            //Console.Write($"\n\n{serialized}\n\n");
             var keypressed = Console.ReadKey(true).Key;
 
 
@@ -79,8 +94,14 @@ namespace moment3
                 arg0: person.ID.ToString(),
                 arg1: person.Data,
                 arg2: person.Time
-                //arg3: person.Author
             );
+
+            /*
+            string loadfile;
+            loadfile = File.ReadAllText("data.json");
+            var serialized = JsonSerializer.Deserialize<Post>(loadfile);
+            */
+            // https://stackoverflow.com/questions/20626849/how-to-append-a-json-file-without-disturbing-the-formatting
 
             var jsonString = JsonSerializer.Serialize(person); // https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-how-to?pivots=dotnet-5-0
             File.WriteAllText("data.json", jsonString);
