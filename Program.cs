@@ -7,10 +7,10 @@ namespace moment3
 {
     public class Post
     {
-        public Guid ID;
-        public string Author;
-        public string Data;
-        public DateTime Time;
+        public Guid ID {get; set;}
+        public string Author {get; set;}
+        public string Data {get; set;}
+        public DateTime Time {get; set;}
     }
 
     class Program
@@ -27,11 +27,14 @@ namespace moment3
             Console.Write($"\n 2. Delete post");
             Console.Write($"\n X. Exit");
 
-            /*
-            var loadfile = File.ReadAllText("data.json");
+            string loadfile;
+            
+            loadfile = File.ReadAllText("data.json");
             var serialized = JsonSerializer.Deserialize<Post>(loadfile);
-            */
-            var serialized = "testdata";
+            
+            Console.WriteLine($"\n{serialized.Data}\n");
+            
+            //var serialized = "testdata";
 
             // read data from file
             Console.Write($"\n\n{serialized}\n\n");
@@ -82,7 +85,8 @@ namespace moment3
             var jsonString = JsonSerializer.Serialize(person); // https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-how-to?pivots=dotnet-5-0
             File.WriteAllText("data.json", jsonString);
 
-            Console.Clear();
+            Console.WriteLine("\n\n\n");
+            //Console.Clear();
             read();
             }
 
