@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace moment3
@@ -19,9 +18,10 @@ namespace moment3
         static void Main(string[] args)
         {
 
-            read();
+            refresh();
 
-            void read() {
+            void refresh()
+            {
             Console.Clear();
             Console.Write($"\nLINUS' GUESTBOOK");
             Console.Write($"\n 1. Add new post");
@@ -30,27 +30,10 @@ namespace moment3
 
             Console.WriteLine("\n");
 
-            try
-            {
-                var loadfile = File.ReadAllText("data.json"); // Read file
-                var JSONdata = JsonSerializer.Deserialize<List<Post>>(loadfile) ?? null; // Deserialize into list of posts
-                //Console.WriteLine($"\n\n{JSONdata}");
+            showPosts();
 
-                if (JSONdata != null) {
-                    foreach (var item in JSONdata) // For each post in list, write post ID and Data
-                    {
-                        Console.WriteLine($"[{item.ID}] {item.Author} - {item.Data}");
-                    }
-                }
-            }
-            catch (System.Exception)
-            {
-                Console.WriteLine("No entries in guestbook.");
-            }
-
-
-
-            var keypressed = Console.ReadKey(true).Key; // Await keypress
+            // Wait for input
+            var keypressed = Console.ReadKey(true).Key;
             switch (keypressed)
             {
                 case ConsoleKey.X:
@@ -63,12 +46,30 @@ namespace moment3
                     delete();
                     break;
 
-                default:
+                default: // Any other key simply exits program
                 break;
             }
-
-            //Console.Write("\nPress any key to exit...");
             
+            }
+
+            void showPosts() {
+                try
+                {
+                    var JSONdata = ReadFile();
+                    
+                    if (JSONdata.Count != 0) { // If list is not empy
+                        foreach (var item in JSONdata) // For each post in list, write post ID and Data
+                        {
+                            Console.WriteLine($"[{item.ID}] {item.Author} - {item.Data}");
+                        }
+                    } else {
+                        Console.WriteLine("No entries in guestbook.");
+                    }
+                }
+                catch (System.Exception)
+                {
+                    Console.WriteLine("Error in guestbook initialization.");
+                }
             }
 
             void add()
@@ -78,45 +79,66 @@ namespace moment3
             person.Author = Console.ReadLine();
 
             Console.WriteLine($"\n{person.Author}, what would you like to post?");
-
             person.Data = Console.ReadLine();
             person.Time = DateTime.Now;
             person.ID = Guid.NewGuid();
 
-            /*
-            Console.WriteLine("\nAdding post:");
-            Console.WriteLine(
-                format: "[{0}], {1}, posted on {2:dd MMM yy}",
-                arg0: person.ID.ToString(),
-                arg1: person.Data,
-                arg2: person.Time
-            );
-            */
-
-            List<Post> newlist = new List<Post> {}; // Initialize empty list of posts
-
-            try
-            {
-                var loadfile = File.ReadAllText("data.json"); // Read file
-                newlist = JsonSerializer.Deserialize<List<Post>>(loadfile); // Deserialize file into our empty list
-                newlist.Add(person); // Add our new post
-            }
-            catch (System.Exception)
-            {
-                newlist.Add(person); // If file is empty, simply add person to our empty list
+            var newlist = ReadFile();
+            newlist.Add(person);
+            SaveFile(newlist);
+            refresh();
             }
 
-            var newData = JsonSerializer.Serialize(newlist); // Serialize our list into JSON
-            File.WriteAllText("data.json", newData); // Write the new list
-            Console.WriteLine("\n\n\n");
+            void delete(bool err = false)
+            {
+                Console.Clear();
+                Console.WriteLine("LINUS' GUESTBOOK");
+                if (err) {
+                    Console.WriteLine("Error, no such ID.");
+                }
+                Console.WriteLine("Which post would you like to delete? (Or type X to go back)");
+                showPosts();
 
-            read();
+                try
+                {
+                    
+                    var line = Console.ReadLine();
+                    if (line != "X") {
+                        Guid number = Guid.Parse(line); // TODO: Later replace with int instead of GUID
+                        var list = ReadFile();
+                        var removeobject = list.Find(x => x.ID == number);
+                        list.Remove(removeobject);
+                        SaveFile(list);
+                    }
+                }
+                catch (System.Exception)
+                {
+                    delete(true);
+                }
+
+                refresh();
             }
 
-            void delete()
+            List<Post> ReadFile()
             {
-                // Guid id
-                // get class
+                try
+                {
+                    List<Post> newlist = new List<Post> {}; 
+                    var loadfile = File.ReadAllText("data.json"); // Read file
+                    newlist = JsonSerializer.Deserialize<List<Post>>(loadfile); // Deserialize file into our empty list
+                    return newlist;
+                }
+                catch (System.Exception)
+                {
+                    return new List<Post> {};
+                }
+
+            }
+
+            void SaveFile(List<Post> newlist)
+            {
+                var newData = JsonSerializer.Serialize(newlist); // Serialize our list into JSON
+                File.WriteAllText("data.json", newData); // Write the new list
             }
         }
     }
