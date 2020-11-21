@@ -22,9 +22,9 @@ namespace moment3
             
             if (JSONdata.Count != 0) { // If list is not empy
                 int index = 0;
-                foreach (var item in JSONdata) // For each post in list, write post ID and Data
+                foreach (var item in JSONdata) // For each post in list
                 {
-                    Console.WriteLine($"[{index}] {item.Author} - {item.Data}");
+                    Console.WriteLine($"[{index}] {item.Author} - {item.Data}"); //  display index, author and data
                     index++;
                 }
             } else {
@@ -33,7 +33,7 @@ namespace moment3
         }
         catch (System.Exception)
         {
-            Console.WriteLine("Error in guestbook initialization.");
+            Console.WriteLine("Error in guestbook initialization."); // catch errors
         }
     }
 
@@ -48,13 +48,13 @@ namespace moment3
                     Console.WriteLine($"Error: {err}");
                 }
                 Console.WriteLine("What is your name?");
-                string author = Console.ReadLine();
+                string author = Console.ReadLine(); // await input
 
                 if (author.Length < 3) {
-                    enterName("Name too short.");
+                    enterName("Name too short. Minimum is 3 characters.");
                 } else {
-                    person.Author = author;
-                    enterMessage();
+                    person.Author = author; // set author
+                    enterMessage(); // continue to message
                 }
             }
             catch (System.Exception)
@@ -63,18 +63,35 @@ namespace moment3
             }
         }
 
-        void enterMessage() {
-            Console.WriteLine($"\n{person.Author}, what would you like to post?");
-            person.Data = Console.ReadLine();
-            person.Time = DateTime.Now;
-            //person.ID = Guid.NewGuid(); // Uncomment for GUID functionability
+        void enterMessage(string err = "") {
+            try
+                {
+                    if (err != "") {
+                        Console.WriteLine($"Error: {err}");
+                    }
+                    Console.WriteLine($"{person.Author}, what would you like to post?");
+                    string data = Console.ReadLine(); // await input
 
-            var newlist = ReadFile();
-            newlist.Add(person);
-            SaveFile(newlist);
-            refresh();
+                    if (data.Length < 3) {
+                        enterMessage("Post too short. Minimum is 3 characters.");
+                    } else {
+                        person.Data = data; // set input
+                        person.Time = DateTime.Now; // also store timestamp
+                        //person.ID = Guid.NewGuid(); // Uncomment for GUID functionability
+
+                        var newlist = ReadFile(); // get file
+                        newlist.Add(person); // add the new person
+                        SaveFile(newlist); // save the new list
+                        refresh(); // refresh entire screen
+                    }
+                }
+                catch (System.Exception)
+                {
+                    enterMessage("Unknown error.");
+                }
         }
     }
+    
 
     public void delete(bool err = false)
     {
@@ -115,7 +132,7 @@ namespace moment3
         }
         catch (System.Exception)
         {
-            return new List<Post> {};
+            return new List<Post> {}; // if error, return empty list
         }
 
     }
@@ -129,21 +146,18 @@ namespace moment3
         public void refresh()
         {
         Console.Clear();
-        Console.Write($"\nLINUS' GUESTBOOK");
-        Console.Write($"\n 1. Add new post");
-        Console.Write($"\n 2. Delete post");
-        Console.Write($"\n X. Exit");
-
-        Console.WriteLine("\n");
-
+        Console.WriteLine("LINUS' GUESTBOOK");
+        Console.WriteLine("1. Add new post");
+        Console.WriteLine("2. Delete post");
+        Console.WriteLine("X. Exit (Or any other key)\n");
         showPosts();
 
         // Wait for input
         var keypressed = Console.ReadKey(true).Key;
         switch (keypressed)
-        {
+        { // switch case for what key is pressed by user
             case ConsoleKey.X:
-                // nothing
+                // nothing, exits program
                 break;
             case ConsoleKey.D1:
                 add();
@@ -153,6 +167,7 @@ namespace moment3
                 break;
 
             default: // Any other key simply exits program
+            // exits program
             break;
         }
         
