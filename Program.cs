@@ -7,7 +7,7 @@ namespace moment3
 {
     public class Post
     {
-        public Guid ID {get; set;}
+        //public Guid ID {get; set;} // Uncomment for GUID functionability
         public string Author {get; set;}
         public string Data {get; set;}
         public DateTime Time {get; set;}
@@ -21,9 +21,11 @@ namespace moment3
             var JSONdata = ReadFile();
             
             if (JSONdata.Count != 0) { // If list is not empy
+                int index = 0;
                 foreach (var item in JSONdata) // For each post in list, write post ID and Data
                 {
-                    Console.WriteLine($"[{item.ID}] {item.Author} - {item.Data}");
+                    Console.WriteLine($"[{index}] {item.Author} - {item.Data}");
+                    index++;
                 }
             } else {
                 Console.WriteLine("No entries in guestbook.");
@@ -37,19 +39,41 @@ namespace moment3
 
     public void add()
     {
-    Console.WriteLine("What is your name?");
     var person = new Post();
-    person.Author = Console.ReadLine();
+    enterName();
+        void enterName(string err = "") {
+            try
+            {
+                if (err != "") {
+                    Console.WriteLine($"Error: {err}");
+                }
+                Console.WriteLine("What is your name?");
+                string author = Console.ReadLine();
 
-    Console.WriteLine($"\n{person.Author}, what would you like to post?");
-    person.Data = Console.ReadLine();
-    person.Time = DateTime.Now;
-    person.ID = Guid.NewGuid();
+                if (author.Length < 3) {
+                    enterName("Name too short.");
+                } else {
+                    person.Author = author;
+                    enterMessage();
+                }
+            }
+            catch (System.Exception)
+            {
+                enterName("Unknown error.");
+            }
+        }
 
-    var newlist = ReadFile();
-    newlist.Add(person);
-    SaveFile(newlist);
-    refresh();
+        void enterMessage() {
+            Console.WriteLine($"\n{person.Author}, what would you like to post?");
+            person.Data = Console.ReadLine();
+            person.Time = DateTime.Now;
+            //person.ID = Guid.NewGuid(); // Uncomment for GUID functionability
+
+            var newlist = ReadFile();
+            newlist.Add(person);
+            SaveFile(newlist);
+            refresh();
+        }
     }
 
     public void delete(bool err = false)
@@ -57,21 +81,19 @@ namespace moment3
         Console.Clear();
         Console.WriteLine("LINUS' GUESTBOOK");
         if (err) {
-            Console.WriteLine("Error, no such ID.");
+            Console.WriteLine("Error in deletion, please try again.");
         }
         Console.WriteLine("Which post would you like to delete? (Or type X to go back)");
         showPosts();
 
         try
         {
-            
             var line = Console.ReadLine();
             if (line != "X") {
-                Guid number = Guid.Parse(line); // TODO: Later replace with int instead of GUID
+                int number = int.Parse(line); // at what index are we removing
                 var list = ReadFile();
-                var removeobject = list.Find(x => x.ID == number);
-                list.Remove(removeobject);
-                SaveFile(list);
+                list.RemoveAt(number); // Remove object in list at index = number written by user
+                SaveFile(list); // save list and refresh
             }
         }
         catch (System.Exception)

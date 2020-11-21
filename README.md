@@ -4,5 +4,5 @@ Run with: `dotnet run`
 
 Todo:
 
-* fix IDs
 * Filtrering vid inmatning
+* testa med tom fil, ta bort allt, etc
